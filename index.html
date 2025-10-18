@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kỷ Niệm Tình Yêu Của Chúng Ta</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Open+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Open Sans', sans-serif; scroll-behavior: smooth; }
+    .great-vibes { font-family: 'Great Vibes', cursive; }
+    .shake { animation: bounce-shake 0.8s; }
+    .carousel-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  border-radius: 1rem;
+}
+.modal-content {
+  background-color: white;
+  border: 8px solid #fbcfe8; /* pink-200 */
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  padding: 2rem;
+  border-radius: 1rem;
+  position: relative;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh; /* giới hạn chiều cao */
+  display: flex;
+  flex-direction: column;
+}
+
+.letter-body {
+  overflow-y: auto; /* cho phép cuộn */
+  flex: 1; /* chiếm toàn bộ không gian còn lại */
+  padding-right: 0.5rem; /* tránh chữ sát scrollbar */
+}
+
+
+.carousel-item.active-slide {
+  opacity: 1;
+}
+    .heart {
+      position: absolute;
+      top: -50px;
+      animation: fall 7s linear forwards;
+      pointer-events: none;
+      user-select: none;
+    }
+    @keyframes bounce-shake {
+      0%, 100% { transform: scale(1.05) translate(0, 0); }
+      20% { transform: scale(1.05) translate(5px, 0) rotate(2deg); }
+      40% { transform: scale(1.05) translate(-5px, 0) rotate(-2deg); }
+      60% { transform: scale(1.05) translate(5px, 0) rotate(2deg); }
+      80% { transform: scale(1.05) translate(-5px, 0) rotate(-2deg); }
+
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-tr from-pink-100 via-yellow-50 to-yellow-100 flex items-center justify-center min-h-screen">
+
+  <!-- AUDIO -->
+  <audio id="background-music" loop>
+      <source src="Dù Cho Tận Thế.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- WELCOME SCREEN -->
+  <div id="welcome-screen" class="screen flex flex-col items-center justify-center text-center transition-opacity duration-500">
+    <h1 class="great-vibes text-5xl md:text-6xl text-pink-600 mb-16 drop-shadow-md question-text">Anh có yêu em không?</h1>
+    <div class="flex gap-8 md:gap-12">
+      <button id="no-button" class="bg-pink-200 text-red-700 px-8 py-4 rounded-full text-2xl md:text-3xl font-bold shadow-md">Không</button>
+      <button id="yes-button" class="bg-gradient-to-br from-pink-400 to-pink-600 text-white px-8 py-4 rounded-full text-2xl md:text-3xl font-bold shadow-lg">Có</button>
+    </div>
+  </div>
+
+  <!-- ANNIVERSARY SCREEN -->
+  <div id="anniversary-screen" class="hidden anniversary-container flex flex-col items-center justify-center p-6 bg-white/95 rounded-3xl shadow-xl max-w-lg mx-4">
+    <h1 class="great-vibes text-4xl md:text-5xl text-purple-900 mb-6 text-center drop-shadow-sm">Chúc Mừng Kỷ Niệm Tình Yêu! ❤️</h1>
+
+    <!-- COUNTDOWN -->
+    <div id="countdown" class="bg-gradient-to-br from-pink-200 to-pink-400 text-white px-4 py-2 rounded-full mb-6 shadow-md text-center font-bold">
+      <p>Chúng ta đã bên nhau được:</p>
+      <div id="time-display" class="text-sm md:text-base"></div>
+    </div>
+<!-- CAROUSEL -->
+<div class="relative w-full h-64 md:h-80 mb-6 overflow-hidden rounded-2xl shadow-lg border-4 border-pink-200">
+  <div class="carousel-item active-slide" style="background-image: url('./ad/z7116102720629_d2315435f0d41a0a46b08b17831f4a26.jpg');"></div>
+  <div class="carousel-item" style="background-image: url('./ad/z7116102725140_6620eef4502edc3e5582b027c717840c3.jpg');"></div>
+  <div class="carousel-item" style="background-image: url('./ad/z7116102869363_50f90a1dd397a3b95bb2bd96c1c7bcd6.jpg');"></div>
+  <div class="carousel-item" style="background-image: url('./ad/z7129777203825_ad62bbfc93dca2996cd741fb23bc92bb.jpg');"></div>
+  <div class="carousel-item" style="background-image: url('./ad/z7129777207979_99050fd267b3128d6efc6b0aa011107b.jpg');"></div>
+  <div class="carousel-item" style="background-image: url('./ad/z7129777218425_93539cb75b55f70b832d89fc6636a104.jpg');"></div>
+  <div class="carousel-item" style="background-image: url('./ad/z7129777232411_a542c059b7017842b595006a34187331.jpg');"></div>
+  <div class="carousel-item" style="background-image: url('./ad/z7129777239649_4e10691dbfdcfc363555b796b9ed0a69.jpg');"></div>
+  <div class="carousel-item" style="background-image: url('./ad/z7129777265364_ca9c9d0fef4e21944b2f5d75eb49c2fd.jpg');"></div>
+</div>
+
+
+
+    <!-- LOVE MESSAGE -->
+    <div class="love-card bg-white p-4 rounded-xl shadow-md text-center">
+      <p class="text-gray-700 mb-4">"Khoảng thời gian qua không ngắn cũng không dài nhưng nó đủ để em cảm nhận được rằng em vẫn xứng yêu và được yêu. Cảm ơn anh vì tất cả!"</p>
+      <button id="open-letter-button" class="bg-gradient-to-br from-pink-500 to-pink-700 text-white uppercase font-bold px-6 py-3 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300">Đọc thư ở đây nèee</button>
+    </div>
+  </div>
+
+  <!-- LOVE LETTER MODAL -->
+  <div id="love-letter-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div class="hearts-container absolute inset-0 pointer-events-none overflow-hidden"></div>
+    <div class="modal-content bg-white border-8 border-pink-200 shadow-2xl p-8 rounded-xl relative max-w-lg w-full animate-slideIn">
+      <span class="close-button absolute top-2 right-4 text-pink-600 text-4xl cursor-pointer">&times;</span>
+      <div class="letter-header mb-4">
+        <h2 class="great-vibes text-3xl text-pink-600 text-center border-b-2 border-dashed border-pink-200 pb-2">Em có vài điều muốn nói:</h2>
+      </div>
+      <div class="letter-body text-gray-700">
+        <p class="wish-message bg-pink-50 border border-dashed border-pink-200 rounded p-4 italic">
+          Gửi người yêu dấu!<br><br>Em không biết từ khi nào mà việc có anh bên cạnh lại trở nên quan trọng đến vậy. Dù anh còn ham chơi, còn thích tụ tập với bạn bè, nhưng em chưa bao giờ thấy mình bị bỏ rơi. Vì em biết, khi cần, anh vẫn ở đó — lặng lẽ, nhưng thật lòng.
+
+<br><br>Em cảm ơn vì những buổi anh chở em đi học, đi chơi, đi dạo. Nghe có vẻ nhỏ nhặt, nhưng với em, đó là những kỷ niệm đáng giá nhất. Mỗi lần ngồi sau lưng anh, nhìn phố xá chạy lùi lại phía sau, em thấy bình yên lắm — kiểu bình yên mà không cần nói nhiều, chỉ cần anh thôi là đủ.
+
+<br><br>Em cũng biết có lúc em làm anh buồn. Anh không nói ra, chỉ im lặng. Cái im lặng của anh nhiều khi khiến em lo, nhưng rồi em hiểu, đó là cách anh giữ mọi thứ yên, không muốn cãi vã, không muốn em khóc. Em biết ơn anh vì điều đó, vì sự nhẫn nhịn và vì luôn chọn cách yêu em theo cách riêng của anh. Nhưng đôi khi cái im lặng của anh làm em suy nghĩ rất nhiều, em mong anh có thể chia sẻ với em nhiều hơn, để em hiểu anh hơn, để em không phải tự mình đoán mò cảm xúc của anh.    
+
+<br><br>Em không mong anh thay đổi nhanh, chỉ mong anh trưởng thành thêm từng chút, để em có thể yên tâm dựa vào vai anh nhiều hơn. Và nếu có lúc nào em vụng về, em mong anh vẫn ở đó, nhìn em với ánh mắt hiền như trước, và im lặng như cách anh vẫn luôn làm.
+
+<br><br>Em chỉ muốn nói rằng, em thật sự trân trọng mọi điều nhỏ bé giữa hai đứa mình. Dù cho sau này có ra sao, em vẫn nhớ mãi những ngày tháng được anh quan tâm, được anh thương và được cùng anh đi qua những ngày bình yên nhất của tuổi trẻ.<br><br>
+        </p>
+        <p class="great-vibes text-2xl text-pink-600 text-right mt-6">-Yêu anh rất nhiều!-</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // JS giữ nguyên logic cũ
+    const startDate = new Date('2024-12-22T22:00:00');
+    const audio = document.getElementById('background-music');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const anniversaryScreen = document.getElementById('anniversary-screen');
+    const noButton = document.getElementById('no-button');
+    const yesButton = document.getElementById('yes-button');
+    const openLetterButton = document.getElementById('open-letter-button');
+    const modal = document.getElementById('love-letter-modal');
+    const closeButton = modal.querySelector('.close-button');
+    const heartsContainer = modal.querySelector('.hearts-container');
+    const carouselItems = document.querySelectorAll('.carousel-item');
+    let currentSlide = 0;
+    let slideInterval, heartInterval;
+    let noSize = 30, yesSize = 30;
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = now - startDate;
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / (60*60*24));
+      const hours = Math.floor((totalSeconds % (60*60*24))/(60*60));
+      const minutes = Math.floor((totalSeconds % (60*60))/60);
+      const seconds = totalSeconds % 60;
+      document.getElementById('time-display').innerHTML = `${days} ngày, ${hours} giờ, ${minutes} phút, ${seconds} giây`;
+    }
+    setInterval(updateCountdown,1000);
+    updateCountdown();
+
+    function showSlide(index) {
+      carouselItems.forEach((item,i)=>{
+        item.classList.remove('active-slide');
+        if(i===index) item.classList.add('active-slide');
+      });
+    }
+    function nextSlide() { currentSlide=(currentSlide+1)%carouselItems.length; showSlide(currentSlide); }
+    function startCarousel(){ if(carouselItems.length>0) slideInterval=setInterval(nextSlide,2000);}
+    function stopCarousel(){ clearInterval(slideInterval); }
+
+    noButton.addEventListener('click', () => {
+    // Lấy kích thước vùng chứa để tránh tràn ra ngoài
+    const container = welcomeScreen.getBoundingClientRect();
+    const btnRect = noButton.getBoundingClientRect();
+
+    // Tính vị trí ngẫu nhiên trong vùng container
+    const maxX = container.width - btnRect.width;
+    const maxY = container.height - btnRect.height;
+
+    const randomX = Math.random() * maxX;
+    const randomY = Math.random() * maxY;
+
+    noButton.style.position = 'absolute';
+    noButton.style.left = `${randomX}px`;
+    noButton.style.top = `${randomY}px`;
+
+    // Tạo hiệu ứng rung cho nút "Có"
+    yesButton.classList.add('shake');
+    setTimeout(() => yesButton.classList.remove('shake'), 800);
+
+    // Thay đổi câu hỏi
+    const questionText = document.querySelector('.question-text');
+    questionText.innerText = "Suy nghĩ lại đi! Anh có yêu em không?";
+});
+    yesButton.addEventListener('click', () => {
+      welcomeScreen.classList.add('opacity-0');
+      setTimeout(() => {
+        welcomeScreen.classList.add('hidden');
+        anniversaryScreen.classList.remove('hidden');
+        startCarousel();
+        audio.play().catch(()=>{});
+      }, 500);
+    });
+    function startFallingHearts(){
+      if(heartInterval) clearInterval(heartInterval);
+      heartInterval=setInterval(()=>{
+        const heart=document.createElement('div');
+        heart.classList.add('heart'); heart.innerHTML='❤️';
+        heart.style.left=Math.random()*100+'%';
+        heart.style.animationDuration=(Math.random()*3+4)+'s';
+        heart.style.fontSize=(Math.random()*20+15)+'px';
+        heartsContainer.appendChild(heart);
+        setTimeout(()=>heart.remove(),7000);
+      },200);
+    }
+    function stopFallingHearts(){ clearInterval(heartInterval); heartsContainer.innerHTML=''; }
+
+    openLetterButton.onclick = ()=>{
+      modal.classList.remove('hidden'); stopCarousel(); startFallingHearts(); audio.play();
+    }
+    closeButton.onclick = ()=>{ modal.classList.add('hidden'); startCarousel(); stopFallingHearts(); audio.play().catch(()=>{}); }
+    window.onclick = (e)=>{ if(e.target==modal){ modal.classList.add('hidden'); startCarousel(); stopFallingHearts(); audio.play().catch(()=>{}); } }
+  </script>
+</body>
+</html>
