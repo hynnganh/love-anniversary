@@ -1,242 +1,181 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kỷ Niệm Tình Yêu Của Chúng Taa</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Open+Sans:wght@300;400;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Open Sans', sans-serif; scroll-behavior: smooth; }
-    .great-vibes { font-family: 'Great Vibes', cursive; }
-    .shake { animation: bounce-shake 0.8s; }
-    .carousel-item {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-  border-radius: 1rem;
-}
-.modal-content {
-  background-color: white;
-  border: 8px solid #fbcfe8; /* pink-200 */
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-  padding: 2rem;
-  border-radius: 1rem;
-  position: relative;
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh; /* giới hạn chiều cao */
-  display: flex;
-  flex-direction: column;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Memory</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: #050505; color: #fff; 
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+        }
 
-.letter-body {
-  overflow-y: auto; /* cho phép cuộn */
-  flex: 1; /* chiếm toàn bộ không gian còn lại */
-  padding-right: 0.5rem; /* tránh chữ sát scrollbar */
-}
+        /* MÀN HÌNH NHẬP MÃ */
+        #pass-screen {
+            position: fixed; inset: 0; background: #0a0a0a;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; transition: 1.5s cubic-bezier(0.8, 0, 0.2, 1);
+            cursor: pointer;
+        }
 
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        .digit-box {
+            width: 45px; height: 60px; border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; transition: 0.3s; background: rgba(255, 255, 255, 0.05);
+        }
 
-.carousel-item.active-slide {
-  opacity: 1;
-}
-    .heart {
-      position: absolute;
-      top: -50px;
-      animation: fall 7s linear forwards;
-      pointer-events: none;
-      user-select: none;
-    }
-    @keyframes bounce-shake {
-      0%, 100% { transform: scale(1.05) translate(0, 0); }
-      20% { transform: scale(1.05) translate(5px, 0) rotate(2deg); }
-      40% { transform: scale(1.05) translate(-5px, 0) rotate(-2deg); }
-      60% { transform: scale(1.05) translate(5px, 0) rotate(2deg); }
-      80% { transform: scale(1.05) translate(-5px, 0) rotate(-2deg); }
+        .digit-box.active { border-color: #ff4d6d; box-shadow: 0 0 15px #ff4d6d; transform: translateY(-5px); }
 
-    }
-  </style>
+        /* Input thật ẩn đi nhưng vẫn hoạt động */
+        #hidden-pass {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px; height: 60px;
+            opacity: 0; border: none; outline: none;
+            z-index: 10; cursor: pointer;
+        }
+
+        /* KHÔNG GIAN 3D */
+        #main-stage {
+            display: none; width: 100vw; height: 100vh;
+            perspective: 1200px; position: relative; opacity: 0; transition: 2s;
+        }
+
+        .heart-wrapper {
+            position: absolute; top: 40%; left: 50%;
+            transform-style: preserve-3d; transform: translate(-50%, -50%);
+        }
+
+        .heart-rotating { animation: rotateFull 20s linear infinite; }
+        @keyframes rotateFull {
+            from { transform: translate(-50%, -50%) rotateY(0deg); }
+            to { transform: translate(-50%, -50%) rotateY(360deg); }
+        }
+
+        .photo-card {
+            position: absolute; width: 100px; height: 100px;
+            background-size: cover; background-position: center;
+            border: 2px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            opacity: 0; transition: all 2.5s cubic-bezier(0.25, 1, 0.5, 1);
+            transform: translate3d(0, 800px, -1000px);
+        }
+
+        .ui-bottom {
+            position: fixed; bottom: 60px; width: 100%; text-align: center;
+            opacity: 0; transition: 2s;
+        }
+        .days-count {
+            font-size: 45px; font-weight: 200; letter-spacing: 5px;
+            background: linear-gradient(45deg, #fff, #ff4d6d);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-tr from-pink-100 via-yellow-50 to-yellow-100 flex items-center justify-center min-h-screen">
+<body>
 
-  <!-- AUDIO -->
-  <audio id="background-music" loop>
-      <source src="Dù Cho Tận Thế.mp3" type="audio/mpeg">
-  </audio>
+    <audio id="loveMusic" loop>
+        <source src="Dù Cho Tận Thế.mp3" type="audio/mpeg">
+    </audio>
 
-  <!-- WELCOME SCREEN -->
-  <div id="welcome-screen" class="screen flex flex-col items-center justify-center text-center transition-opacity duration-500">
-    <h1 class="great-vibes text-5xl md:text-6xl text-pink-600 mb-16 drop-shadow-md question-text">Anh có yêu em không?</h1>
-    <div class="flex gap-8 md:gap-12">
-      <button id="no-button" class="bg-pink-200 text-red-700 px-8 py-4 rounded-full text-2xl md:text-3xl font-bold shadow-md">Không</button>
-      <button id="yes-button" class="bg-gradient-to-br from-pink-400 to-pink-600 text-white px-8 py-4 rounded-full text-2xl md:text-3xl font-bold shadow-lg">Có</button>
+    <div id="pass-screen" onclick="document.getElementById('hidden-pass').focus()">
+        <p style="color:#888; font-size:10px; letter-spacing:3px; margin-bottom:30px;">CHẠM ĐỂ NHẬP MÃ</p>
+        <div class="input-group">
+            <div class="digit-box"></div><div class="digit-box"></div><div class="digit-box"></div>
+            <div class="digit-box"></div><div class="digit-box"></div><div class="digit-box"></div>
+        </div>
+        <input type="password" id="hidden-pass" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+        <p style="color:#444; font-size:12px; margin-top:20px;">Gợi ý: 221224</p>
     </div>
-  </div>
 
-  <!-- ANNIVERSARY SCREEN -->
-  <div id="anniversary-screen" class="hidden anniversary-container flex flex-col items-center justify-center p-6 bg-white/95 rounded-3xl shadow-xl max-w-lg mx-4">
-    <h1 class="great-vibes text-4xl md:text-5xl text-purple-900 mb-6 text-center drop-shadow-sm">Chúc Mừng Kỷ Niệm Tình Yêu! ❤️</h1>
-
-    <!-- COUNTDOWN -->
-    <div id="countdown" class="bg-gradient-to-br from-pink-200 to-pink-400 text-white px-4 py-2 rounded-full mb-6 shadow-md text-center font-bold">
-      <p>Chúng ta đã bên nhau được:</p>
-      <div id="time-display" class="text-sm md:text-base"></div>
+    <div id="main-stage">
+        <div class="heart-wrapper" id="heart-node"></div>
+        <div class="ui-bottom" id="ui-node">
+            <div class="days-count" id="d-num">000 DAYS</div>
+            <div style="color:#888; font-size:14px; letter-spacing:4px;" id="t-num">00:00:00</div>
+        </div>
     </div>
-<!-- CAROUSEL -->
-<div class="relative w-full h-64 md:h-80 mb-6 overflow-hidden rounded-2xl shadow-lg border-4 border-pink-200">
-  <div class="carousel-item active-slide" style="background-image: url('./ad/anh1.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh2.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh3.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh4.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh5.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh6.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh7.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh8.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh9.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh10.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh11.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh12.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh13.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh14.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh15.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh16.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh17.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh18.jpg');"></div>
-  <div class="carousel-item" style="background-image: url('./ad/anh19.jpg');"></div>
-</div>
 
+    <script>
+        const PASS = "221224";
+        const START_DATE = new Date("2024-12-22T22:00:00");
+        
+        // Bạn có thể thay ảnh của mình vào đây
+        const album = [
+            './ad/anh1.jpg', './ad/anh2.jpg', './ad/anh3.jpg', './ad/anh4.jpg', './ad/anh5.jpg',
+            './ad/anh1.jpg', './ad/anh2.jpg', './ad/anh3.jpg', './ad/anh4.jpg', './ad/anh5.jpg',
+            './ad/anh1.jpg', './ad/anh2.jpg', './ad/anh3.jpg', './ad/anh4.jpg', './ad/anh5.jpg'
+        ];
 
+        const input = document.getElementById('hidden-pass');
+        const boxes = document.querySelectorAll('.digit-box');
 
-    <!-- LOVE MESSAGE -->
-    <div class="love-card bg-white p-4 rounded-xl shadow-md text-center">
-      <p class="text-gray-700 mb-4">"Khoảng thời gian qua không ngắn cũng không dài nhưng nó đủ để em cảm nhận được rằng em vẫn xứng yêu và được yêu. Cảm ơn anh vì tất cả!"</p>
-      <button id="open-letter-button" class="bg-gradient-to-br from-pink-500 to-pink-700 text-white uppercase font-bold px-6 py-3 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300">Đọc thư ở đây nèee</button>
-    </div>
-  </div>
+        // Tự động focus khi vừa mở trang
+        window.onload = () => input.focus();
 
-  <!-- LOVE LETTER MODAL -->
-  <div id="love-letter-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-    <div class="hearts-container absolute inset-0 pointer-events-none overflow-hidden"></div>
-    <div class="modal-content bg-white border-8 border-pink-200 shadow-2xl p-8 rounded-xl relative max-w-lg w-full animate-slideIn">
-      <span class="close-button absolute top-2 right-4 text-pink-600 text-4xl cursor-pointer">&times;</span>
-      <div class="letter-header mb-4">
-        <h2 class="great-vibes text-3xl text-pink-600 text-center border-b-2 border-dashed border-pink-200 pb-2">Em có vài điều muốn nói:</h2>
-      </div>
-      <div class="letter-body text-gray-700">
-        <p class="wish-message bg-pink-50 border border-dashed border-pink-200 rounded p-4 italic">
-          Gửi người yêu dấu!<br><br>Em không biết từ khi nào mà việc có anh bên cạnh lại trở nên quan trọng đến vậy. Dù anh còn ham chơi, còn thích tụ tập với bạn bè, nhưng em chưa bao giờ thấy mình bị bỏ rơi. Vì em biết, khi cần, anh vẫn ở đó — lặng lẽ, nhưng thật lòng.
+        input.addEventListener('input', function() {
+            const val = this.value;
+            boxes.forEach((box, i) => {
+                box.innerText = val[i] ? "•" : "";
+                if (val[i]) box.classList.add('active');
+                else box.classList.remove('active');
+            });
 
-<br><br>Em cảm ơn vì những buổi anh chở em đi học, đi chơi, đi dạo. Nghe có vẻ nhỏ nhặt, nhưng với em, đó là những kỷ niệm đáng giá nhất. Mỗi lần ngồi sau lưng anh, nhìn phố xá chạy lùi lại phía sau, em thấy bình yên lắm — kiểu bình yên mà không cần nói nhiều, chỉ cần anh thôi là đủ.
+            if(val === PASS) {
+                document.getElementById('pass-screen').style.opacity = '0';
+                setTimeout(startExperience, 1000);
+            }
+        });
 
-<br><br>Em cũng biết có lúc em làm anh buồn. Anh không nói ra, chỉ im lặng. Cái im lặng của anh nhiều khi khiến em lo, nhưng rồi em hiểu, đó là cách anh giữ mọi thứ yên, không muốn cãi vã, không muốn em khóc. Em biết ơn anh vì điều đó, vì sự nhẫn nhịn và vì luôn chọn cách yêu em theo cách riêng của anh. Nhưng đôi khi cái im lặng của anh làm em suy nghĩ rất nhiều, em mong anh có thể chia sẻ với em nhiều hơn, để em hiểu anh hơn, để em không phải tự mình đoán mò cảm xúc của anh.    
+        function startExperience() {
+            document.getElementById('pass-screen').style.display = 'none';
+            const stage = document.getElementById('main-stage');
+            stage.style.display = 'block';
+            setTimeout(() => stage.style.opacity = '1', 50);
+            
+            document.getElementById('loveMusic').play().catch(e => console.log("Audio block:", e));
+            
+            const wrapper = document.getElementById('heart-node');
+            
+            album.forEach((src, i) => {
+                setTimeout(() => {
+                    const card = document.createElement('div');
+                    card.className = 'photo-card';
+                    card.style.backgroundImage = `url('${src}')`;
+                    wrapper.appendChild(card);
 
-<br><br>Em không mong anh thay đổi nhanh, chỉ mong anh trưởng thành thêm từng chút, để em có thể yên tâm dựa vào vai anh nhiều hơn. Và nếu có lúc nào em vụng về, em mong anh vẫn ở đó, nhìn em với ánh mắt hiền như trước, và im lặng như cách anh vẫn luôn làm.
+                    const t = (i / album.length) * Math.PI * 2;
+                    const x = 16 * Math.pow(Math.sin(t), 3);
+                    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                    const s = 15; 
 
-<br><br>Em chỉ muốn nói rằng, em thật sự trân trọng mọi điều nhỏ bé giữa hai đứa mình. Dù cho sau này có ra sao, em vẫn nhớ mãi những ngày tháng được anh quan tâm, được anh thương và được cùng anh đi qua những ngày bình yên nhất của tuổi trẻ.<br><br>
-        </p>
-        <p class="great-vibes text-2xl text-pink-600 text-right mt-6">-Yêu anh rất nhiều!-</p>
-      </div>
-    </div>
-  </div>
+                    requestAnimationFrame(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = `translate3d(${x * s}px, ${y * s}px, ${Math.sin(t*2)*50}px) rotateY(${t}rad)`;
+                    });
+                }, i * 300);
+            });
 
-  <script>
-    // JS giữ nguyên logic cũ
-    const startDate = new Date('2024-12-22T22:00:00');
-    const audio = document.getElementById('background-music');
-    const welcomeScreen = document.getElementById('welcome-screen');
-    const anniversaryScreen = document.getElementById('anniversary-screen');
-    const noButton = document.getElementById('no-button');
-    const yesButton = document.getElementById('yes-button');
-    const openLetterButton = document.getElementById('open-letter-button');
-    const modal = document.getElementById('love-letter-modal');
-    const closeButton = modal.querySelector('.close-button');
-    const heartsContainer = modal.querySelector('.hearts-container');
-    const carouselItems = document.querySelectorAll('.carousel-item');
-    let currentSlide = 0;
-    let slideInterval, heartInterval;
-    let noSize = 30, yesSize = 30;
+            setTimeout(() => {
+                wrapper.classList.add('heart-rotating');
+                document.getElementById('ui-node').style.opacity = '1';
+                setInterval(updateTimer, 1000);
+            }, (album.length * 300) + 1000);
+        }
 
-    function updateCountdown() {
-      const now = new Date();
-      const diff = now - startDate;
-      const totalSeconds = Math.floor(diff / 1000);
-      const days = Math.floor(totalSeconds / (60*60*24));
-      const hours = Math.floor((totalSeconds % (60*60*24))/(60*60));
-      const minutes = Math.floor((totalSeconds % (60*60))/60);
-      const seconds = totalSeconds % 60;
-      document.getElementById('time-display').innerHTML = `${days} ngày, ${hours} giờ, ${minutes} phút, ${seconds} giây`;
-    }
-    setInterval(updateCountdown,1000);
-    updateCountdown();
-
-    function showSlide(index) {
-      carouselItems.forEach((item,i)=>{
-        item.classList.remove('active-slide');
-        if(i===index) item.classList.add('active-slide');
-      });
-    }
-    function nextSlide() { currentSlide=(currentSlide+1)%carouselItems.length; showSlide(currentSlide); }
-    function startCarousel(){ if(carouselItems.length>0) slideInterval=setInterval(nextSlide,2000);}
-    function stopCarousel(){ clearInterval(slideInterval); }
-
-    noButton.addEventListener('click', () => {
-    // Lấy kích thước vùng chứa để tránh tràn ra ngoài
-    const container = welcomeScreen.getBoundingClientRect();
-    const btnRect = noButton.getBoundingClientRect();
-
-    // Tính vị trí ngẫu nhiên trong vùng container
-    const maxX = container.width - btnRect.width;
-    const maxY = container.height - btnRect.height;
-
-    const randomX = Math.random() * maxX;
-    const randomY = Math.random() * maxY;
-
-    noButton.style.position = 'absolute';
-    noButton.style.left = `${randomX}px`;
-    noButton.style.top = `${randomY}px`;
-
-    // Tạo hiệu ứng rung cho nút "Có"
-    yesButton.classList.add('shake');
-    setTimeout(() => yesButton.classList.remove('shake'), 800);
-
-    // Thay đổi câu hỏi
-    const questionText = document.querySelector('.question-text');
-    questionText.innerText = "Suy nghĩ lại đi! Anh có yêu em không?";
-});
-    yesButton.addEventListener('click', () => {
-      welcomeScreen.classList.add('opacity-0');
-      setTimeout(() => {
-        welcomeScreen.classList.add('hidden');
-        anniversaryScreen.classList.remove('hidden');
-        startCarousel();
-        audio.play().catch(()=>{});
-      }, 500);
-    });
-    function startFallingHearts(){
-      if(heartInterval) clearInterval(heartInterval);
-      heartInterval=setInterval(()=>{
-        const heart=document.createElement('div');
-        heart.classList.add('heart'); heart.innerHTML='❤️';
-        heart.style.left=Math.random()*100+'%';
-        heart.style.animationDuration=(Math.random()*3+4)+'s';
-        heart.style.fontSize=(Math.random()*20+15)+'px';
-        heartsContainer.appendChild(heart);
-        setTimeout(()=>heart.remove(),7000);
-      },200);
-    }
-    function stopFallingHearts(){ clearInterval(heartInterval); heartsContainer.innerHTML=''; }
-
-    openLetterButton.onclick = ()=>{
-      modal.classList.remove('hidden'); stopCarousel(); startFallingHearts(); audio.play();
-    }
-    closeButton.onclick = ()=>{ modal.classList.add('hidden'); startCarousel(); stopFallingHearts(); audio.play().catch(()=>{}); }
-    window.onclick = (e)=>{ if(e.target==modal){ modal.classList.add('hidden'); startCarousel(); stopFallingHearts(); audio.play().catch(()=>{}); } }
-  </script>
+        function updateTimer() {
+            const diff = new Date() - START_DATE;
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff / 3600000) % 24);
+            const m = Math.floor((diff / 60000) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+            document.getElementById('d-num').innerText = d + " DAYS";
+            document.getElementById('t-num').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+    </script>
 </body>
 </html>
