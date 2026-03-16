@@ -13,12 +13,14 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* MÀN HÌNH NHẬP MÃ */
+        /* Nền lấp lánh */
+        #star-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+        /* Màn hình nhập mã */
         #pass-screen {
-            position: fixed; inset: 0; background: #0a0a0a;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 100; transition: 1.5s cubic-bezier(0.8, 0, 0.2, 1);
-            cursor: pointer;
+            z-index: 100; transition: 1s; cursor: pointer;
         }
 
         .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -29,105 +31,112 @@
             font-size: 24px; transition: 0.3s; background: rgba(255, 255, 255, 0.05);
         }
 
-        .digit-box.active { border-color: #ff4d6d; box-shadow: 0 0 15px #ff4d6d; transform: translateY(-5px); }
-
-        /* Input thật ẩn đi nhưng vẫn hoạt động */
-        #hidden-pass {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px; height: 60px;
-            opacity: 0; border: none; outline: none;
-            z-index: 10; cursor: pointer;
+        .digit-box.active { border-color: #ff4d6d; box-shadow: 0 0 10px #ff4d6d; }
+        
+        /* Hiệu ứng rung khi sai mật khẩu */
+        .shake { animation: shake 0.4s ease-in-out; border-color: #ff0000 !important; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
         }
 
-        /* KHÔNG GIAN 3D */
-        #main-stage {
-            display: none; width: 100vw; height: 100vh;
-            perspective: 1200px; position: relative; opacity: 0; transition: 2s;
+        #hidden-pass { position: absolute; opacity: 0; pointer-events: none; }
+
+        #error-msg {
+            color: #ff4d6d; font-size: 14px; margin-top: 15px;
+            opacity: 0; transition: 0.3s; height: 20px;
         }
 
-        .heart-wrapper {
-            position: absolute; top: 40%; left: 50%;
-            transform-style: preserve-3d; transform: translate(-50%, -50%);
-        }
-
+        /* Sân khấu chính */
+        #main-stage { display: none; width: 100vw; height: 100vh; perspective: 1200px; opacity: 0; transition: 2s; }
+        .heart-wrapper { position: absolute; top: 40%; left: 50%; transform-style: preserve-3d; transform: translate(-50%, -50%); }
         .heart-rotating { animation: rotateFull 20s linear infinite; }
         @keyframes rotateFull {
             from { transform: translate(-50%, -50%) rotateY(0deg); }
             to { transform: translate(-50%, -50%) rotateY(360deg); }
         }
-
         .photo-card {
-            position: absolute; width: 100px; height: 100px;
-            background-size: cover; background-position: center;
-            border: 2px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            opacity: 0; transition: all 2.5s cubic-bezier(0.25, 1, 0.5, 1);
-            transform: translate3d(0, 800px, -1000px);
+            position: absolute; width: 100px; height: 100px; background-size: cover;
+            border: 2px solid #fff; opacity: 0; transition: 2.5s;
+            transform: translate3d(0, 500px, -1000px);
         }
-
-        .ui-bottom {
-            position: fixed; bottom: 60px; width: 100%; text-align: center;
-            opacity: 0; transition: 2s;
-        }
-        .days-count {
-            font-size: 45px; font-weight: 200; letter-spacing: 5px;
-            background: linear-gradient(45deg, #fff, #ff4d6d);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
+        .ui-bottom { position: fixed; bottom: 60px; width: 100%; text-align: center; opacity: 0; transition: 2s; }
+        .days-count { font-size: 40px; background: linear-gradient(45deg, #fff, #ff4d6d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
 <body>
 
-    <audio id="loveMusic" loop>
-        <source src="Dù Cho Tận Thế.mp3" type="audio/mpeg">
-    </audio>
+    <canvas id="star-canvas"></canvas>
+    <audio id="loveMusic" loop><source src="Dù Cho Tận Thế.mp3" type="audio/mpeg"></audio>
 
     <div id="pass-screen" onclick="document.getElementById('hidden-pass').focus()">
-        <p style="color:#888; font-size:10px; letter-spacing:3px; margin-bottom:30px;">CHẠM ĐỂ NHẬP MÃ</p>
+        <p style="color:#666; font-size:10px; letter-spacing:3px; margin-bottom:25px;">NHẬP MÃ ĐỂ MỞ KHÓA</p>
         <div class="input-group">
             <div class="digit-box"></div><div class="digit-box"></div><div class="digit-box"></div>
             <div class="digit-box"></div><div class="digit-box"></div><div class="digit-box"></div>
         </div>
-        <input type="password" id="hidden-pass" maxlength="6" inputmode="numeric" pattern="[0-9]*">
-        <p style="color:#444; font-size:12px; margin-top:20px;">Gợi ý: 221224</p>
+        <input type="password" id="hidden-pass" maxlength="6" inputmode="numeric" autofocus>
+        <p id="error-msg">Anh hết thương em rồi... ☹</p>
     </div>
 
     <div id="main-stage">
         <div class="heart-wrapper" id="heart-node"></div>
         <div class="ui-bottom" id="ui-node">
-            <div class="days-count" id="d-num">000 DAYS</div>
-            <div style="color:#888; font-size:14px; letter-spacing:4px;" id="t-num">00:00:00</div>
+            <div class="days-count" id="d-num">0 DAYS</div>
+            <div style="color:#888; letter-spacing:3px;" id="t-num">00:00:00</div>
         </div>
     </div>
 
     <script>
         const PASS = "221224";
         const START_DATE = new Date("2024-12-22T22:00:00");
-        
-        // Bạn có thể thay ảnh của mình vào đây
-        const album = [
-            './ad/anh1.jpg', './ad/anh2.jpg', './ad/anh3.jpg', './ad/anh4.jpg', './ad/anh5.jpg',
-            './ad/anh1.jpg', './ad/anh2.jpg', './ad/anh3.jpg', './ad/anh4.jpg', './ad/anh5.jpg',
-            './ad/anh1.jpg', './ad/anh2.jpg', './ad/anh3.jpg', './ad/anh4.jpg', './ad/anh5.jpg'
-        ];
+        const album = ['./ad/anh1.jpg', './ad/anh2.jpg', './ad/anh3.jpg', './ad/anh4.jpg', './ad/anh5.jpg']; // Lặp lại ảnh nếu cần
 
         const input = document.getElementById('hidden-pass');
         const boxes = document.querySelectorAll('.digit-box');
+        const errorMsg = document.getElementById('error-msg');
 
-        // Tự động focus khi vừa mở trang
-        window.onload = () => input.focus();
+        // Sao lấp lánh (Canvas)
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        function initStars() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            stars = Array.from({length: 150}, () => ({
+                x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+                s: Math.random()*2, sp: Math.random()*0.02
+            }));
+        }
+        function draw() {
+            ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "#fff";
+            stars.forEach(s => { ctx.globalAlpha = Math.abs(Math.sin(Date.now()*s.sp)); ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, 7); ctx.fill(); });
+            requestAnimationFrame(draw);
+        }
+        initStars(); draw();
 
+        // Xử lý mật khẩu
         input.addEventListener('input', function() {
             const val = this.value;
+            errorMsg.style.opacity = "0"; 
+            
             boxes.forEach((box, i) => {
                 box.innerText = val[i] ? "•" : "";
-                if (val[i]) box.classList.add('active');
-                else box.classList.remove('active');
+                box.classList.toggle('active', !!val[i]);
+                box.classList.remove('shake');
             });
 
-            if(val === PASS) {
-                document.getElementById('pass-screen').style.opacity = '0';
-                setTimeout(startExperience, 1000);
+            if(val.length === 6) {
+                if(val === PASS) {
+                    document.getElementById('pass-screen').style.opacity = '0';
+                    setTimeout(startExperience, 800);
+                } else {
+                    // Thông báo "Hết thương"
+                    errorMsg.style.opacity = "1";
+                    boxes.forEach(box => box.classList.add('shake'));
+                    this.value = "";
+                    setTimeout(() => boxes.forEach(box => {box.classList.remove('shake'); box.innerText="";}), 500);
+                }
             }
         });
 
@@ -136,46 +145,43 @@
             const stage = document.getElementById('main-stage');
             stage.style.display = 'block';
             setTimeout(() => stage.style.opacity = '1', 50);
-            
-            document.getElementById('loveMusic').play().catch(e => console.log("Audio block:", e));
-            
+            document.getElementById('loveMusic').play().catch(() => {});
+
             const wrapper = document.getElementById('heart-node');
-            
-            album.forEach((src, i) => {
+            const fullAlbum = [...album, ...album, ...album]; // Nhân bản ảnh để đủ hình trái tim
+            fullAlbum.forEach((src, i) => {
                 setTimeout(() => {
                     const card = document.createElement('div');
                     card.className = 'photo-card';
                     card.style.backgroundImage = `url('${src}')`;
                     wrapper.appendChild(card);
-
-                    const t = (i / album.length) * Math.PI * 2;
-                    const x = 16 * Math.pow(Math.sin(t), 3);
-                    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-                    const s = 15; 
-
+                    const t = (i / fullAlbum.length) * Math.PI * 2;
+                    const x = 16 * Math.pow(Math.sin(t), 3) * 15;
+                    const y = -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)) * 15;
                     requestAnimationFrame(() => {
                         card.style.opacity = '1';
-                        card.style.transform = `translate3d(${x * s}px, ${y * s}px, ${Math.sin(t*2)*50}px) rotateY(${t}rad)`;
+                        card.style.transform = `translate3d(${x}px, ${y}px, 0) rotateY(${t}rad)`;
                     });
-                }, i * 300);
+                }, i * 150);
             });
 
             setTimeout(() => {
                 wrapper.classList.add('heart-rotating');
                 document.getElementById('ui-node').style.opacity = '1';
                 setInterval(updateTimer, 1000);
-            }, (album.length * 300) + 1000);
+            }, (fullAlbum.length * 150) + 500);
         }
 
         function updateTimer() {
             const diff = new Date() - START_DATE;
             const d = Math.floor(diff / 86400000);
-            const h = Math.floor((diff / 3600000) % 24);
-            const m = Math.floor((diff / 60000) % 60);
-            const s = Math.floor((diff / 1000) % 60);
+            const h = String(Math.floor((diff / 3600000) % 24)).padStart(2,'0');
+            const m = String(Math.floor((diff / 60000) % 60)).padStart(2,'0');
+            const s = String(Math.floor((diff / 1000) % 60)).padStart(2,'0');
             document.getElementById('d-num').innerText = d + " DAYS";
-            document.getElementById('t-num').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('t-num').innerText = `${h}:${m}:${s}`;
         }
+        window.onresize = initStars;
     </script>
 </body>
 </html>
