@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Memory Gravity</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <title>Memory Particle Sphere</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             background: #000; color: #fff; 
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             overflow: hidden; height: 100vh;
-            display: flex; justify-content: center; align-items: center;
+            touch-action: none;
         }
 
-        /* MÀN HÌNH NHẬP MÃ TỐI GIẢN */
         #pass-screen {
             position: fixed; inset: 0; z-index: 100;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -28,47 +26,50 @@
             width: 10px; height: 10px; border: 1px solid #333; border-radius: 50%;
             transition: 0.3s;
         }
-        .code-dot.active { background: #ff4d6d; border-color: #ff4d6d; transform: scale(1.3); }
+        .code-dot.active { background: #ff4d6d; border-color: #ff4d6d; transform: scale(1.5); }
 
-        #err-msg { 
-            color: #ff4d6d; font-size: 11px; letter-spacing: 2px; 
-            opacity: 0; transition: 0.3s; margin-top: 20px;
-        }
-
-        /* SÂN KHẤU CHÍNH */
-        #main-content {
+        #sphere-stage {
             display: none; width: 100vw; height: 100vh;
-            position: relative; overflow: hidden;
-            background: radial-gradient(circle at center, #111 0%, #000 100%);
+            position: relative; overflow: hidden; opacity: 0; transition: 2s;
+            perspective: 1000px;
         }
 
-        /* THÔNG TIN NGÀY QUEN LƠ LỬNG */
-        .info-container {
-            position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%);
+        .center-content {
+            position: absolute; top: 10%; left: 50%; transform: translate(-50%, 0);
             text-align: center; z-index: 10; pointer-events: none;
         }
 
         .days-count {
-            font-size: clamp(60px, 20vw, 100px); font-weight: 100; letter-spacing: -2px;
-            background: linear-gradient(to bottom, #fff 40%, #ff4d6d 100%);
+            font-size: 80px; font-weight: 100;
+            background: linear-gradient(to bottom, #fff, #ff4d6d);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(255, 77, 109, 0.4));
         }
 
-        .label { font-size: 11px; letter-spacing: 8px; color: rgba(255,255,255,0.4); margin-top: -10px; }
-        .time-ticker { font-family: monospace; font-size: 14px; color: #444; margin-top: 20px; letter-spacing: 3px; }
+        .label { font-size: 11px; letter-spacing: 5px; color: rgba(255,255,255,0.4); }
 
-        /* NƠI CÁC TẤM ẢNH ĐƯỢC CHÈN VÀO */
-        #photo-container { position: absolute; inset: 0; z-index: 5; }
-
-        /* PHONG CÁCH TẤM ẢNH THẬT */
-        .photo {
-            position: absolute; width: 100px; height: 130px;
+        .particle-photo {
+            position: absolute; width: 30px; height: 30px;
             background-size: cover; background-position: center;
-            border-radius: 5px; border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            pointer-events: auto; /* Cho phép tương tác chạm */
+            border-radius: 50%;
+            border: 2px solid #fff;
+            transition: 0.8s cubic-bezier(0.2, 1, 0.3, 1);
             cursor: pointer;
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
+
+        .particle-photo.active {
+            width: 85vw; height: 120vw;
+            max-width: 350px; max-height: 500px;
+            border-radius: 12px; border: 4px solid #fff;
+            z-index: 999 !important;
+            left: 50% !important; top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
+
+        .time-ticker {
+            position: fixed; bottom: 30px; font-family: monospace;
+            font-size: 14px; color: #333; width: 100%; text-align: center;
         }
     </style>
 </head>
@@ -82,142 +83,118 @@
             <div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div>
         </div>
         <input type="password" id="hidden-input" maxlength="6" inputmode="numeric" autofocus>
-        <p id="err-msg">Anh hết thương em rồi... ☹</p>
     </div>
 
-    <div id="main-content">
-        <div class="info-container">
-            <div class="label">KỶ NIỆM MỞ RA</div>
+    <div id="sphere-stage">
+        <div class="center-content">
             <div class="days-count" id="d-num">0</div>
-            <div class="label" style="color: #fff; margin-bottom: 20px;">DAYS TOGETHER</div>
-            <div class="time-ticker" id="t-num">00 : 00 : 00</div>
+            <div class="label">DAYS TOGETHER</div>
         </div>
-        <div id="photo-container"></div>
+        <div id="photo-container" style="position: absolute; width: 100%; height: 100%; transform-style: preserve-3d;"></div>
+        <div class="time-ticker" id="t-num">00H : 00M : 00S</div>
     </div>
 
     <script>
-        const PASS = "221224"; // Mật khẩu
-        const START_DATE = new Date("2024-12-22T22:00:00"); // Ngày kỷ niệm
-        const album = Array.from({length: 19}, (_, i) => `./ad/anh${i+1}.jpg`); // 19 ảnh
+        const PASS = "221224";
+        const START_DATE = new Date("2024-12-22T22:00:00");
+        // FIX: Đã đưa về đường dẫn ảnh gốc của bạn
+        const album = Array.from({length: 19}, (_, i) => `./ad/anh${i+1}.jpg`);
 
         const input = document.getElementById('hidden-input');
         const dots = document.querySelectorAll('.code-dot');
-        const screen = document.getElementById('pass-screen');
-        const main = document.getElementById('main-content');
+        let rotationX = 0, rotationY = 0, isDragging = false, startX, startY;
+        const sphereRadius = window.innerWidth < 500 ? 150 : 250;
 
         input.addEventListener('input', function() {
             const val = this.value;
             dots.forEach((dot, i) => dot.classList.toggle('active', !!val[i]));
-
             if(val.length === 6) {
                 if(val === PASS) {
-                    screen.style.opacity = "0";
-                    setTimeout(initMemoryGravity, 1000);
+                    document.getElementById('pass-screen').style.opacity = "0";
+                    setTimeout(initSphere, 800);
                 } else {
-                    document.getElementById('err-msg').style.opacity = "1";
                     this.value = "";
                     dots.forEach(d => d.classList.remove('active'));
                 }
             }
         });
 
-        function initMemoryGravity() {
-            screen.style.display = "none";
-            main.style.display = "block";
+        function initSphere() {
+            document.getElementById('pass-screen').style.display = "none";
+            const stage = document.getElementById('sphere-stage');
+            stage.style.display = "block";
+            setTimeout(() => stage.style.opacity = "1", 50);
             document.getElementById('bgMusic').play().catch(()=>{});
 
-            // Khởi tạo Matter.js Engine
-            const { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint } = Matter;
-            const engine = Engine.create();
-            engine.gravity.y = 1; // Trọng lực ban đầu
-
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-
-            // Tạo các bức tường "tàng hình" để ảnh không bay ra ngoài
-            const ground = Bodies.rectangle(width / 2, height + 30, width, 60, { isStatic: true });
-            const leftWall = Bodies.rectangle(-30, height / 2, 60, height, { isStatic: true });
-            const rightWall = Bodies.rectangle(width + 30, height / 2, 60, height, { isStatic: true });
-            const ceiling = Bodies.rectangle(width / 2, -300, width, 60, { isStatic: true }); // Trần cao để ảnh rơi
-
-            Composite.add(engine.world, [ground, leftWall, rightWall, ceiling]);
-
-            // Tạo 19 tấm ảnh
             const container = document.getElementById('photo-container');
+            const phi = Math.PI * (3 - Math.sqrt(5));
+
             album.forEach((src, i) => {
-                setTimeout(() => {
-                    const el = document.createElement('div');
-                    el.className = 'photo';
-                    el.style.backgroundImage = `url('${src}')`;
-                    container.appendChild(el);
+                const img = document.createElement('div');
+                img.className = 'particle-photo';
+                img.style.backgroundImage = `url('${src}')`;
+                
+                const y = 1 - (i / (album.length - 1)) * 2;
+                const radius = Math.sqrt(1 - y * y);
+                const theta = phi * i;
 
-                    // Vị trí rơi ngẫu nhiên trên đỉnh
-                    const x = 50 + Math.random() * (width - 100);
-                    const y = -200 - Math.random() * 200;
-
-                    // Tạo đối tượng vật lý cho ảnh
-                    const body = Bodies.rectangle(x, y, 100, 130, {
-                        frictionAir: 0.02, // Sức cản không khí nhẹ
-                        restitution: 0.5, // Độ nảy
-                        render: { opacity: 1 }
-                    });
-
-                    // Liên kết đối tượng vật lý với phần tử HTML
-                    body.element = el;
-                    Composite.add(engine.world, body);
-
-                }, i * 300); // Mỗi 0.3s rơi một ảnh
+                img.dataset.x = Math.cos(theta) * radius * sphereRadius;
+                img.dataset.y = y * sphereRadius;
+                img.dataset.z = Math.sin(theta) * radius * sphereRadius;
+                
+                img.onclick = (e) => {
+                    e.stopPropagation();
+                    const active = document.querySelector('.particle-photo.active');
+                    if(active) active.classList.remove('active');
+                    img.classList.add('active');
+                };
+                container.appendChild(img);
             });
 
-            // Đồng bộ hóa vị trí Matter.js với HTML
-            (function update() {
-                const bodies = Composite.allBodies(engine.world);
-                bodies.forEach(body => {
-                    if (body.element) {
-                        const { x, y } = body.position;
-                        // Cập nhật vị trí và góc xoay
-                        body.element.style.transform = `translate(${x - 50}px, ${y - 65}px) rotate(${body.angle}rad)`;
-                    }
-                });
-                Engine.update(engine);
-                requestAnimationFrame(update);
-            })();
+            window.onpointerdown = e => { isDragging = true; startX = e.clientX; startY = e.clientY; };
+            window.onpointermove = e => {
+                if(!isDragging || document.querySelector('.particle-photo.active')) return;
+                rotationY += (e.clientX - startX) * 0.2;
+                rotationX -= (e.clientY - startY) * 0.2;
+                startX = e.clientX; startY = e.clientY;
+                render();
+            };
+            window.onpointerup = () => isDragging = false;
+            stage.onclick = () => {
+                const active = document.querySelector('.particle-photo.active');
+                if(active) active.classList.remove('active');
+            };
 
-            // TÍNH NĂNG NGHIÊNG ĐIỆN THOẠI
-            if (window.DeviceOrientationEvent) {
-                window.addEventListener('deviceorientation', (event) => {
-                    // event.gamma: Nghiêng trái/phải (-90 đến 90)
-                    // event.beta: Nghiêng trước/sau (-180 đến 180)
-                    
-                    const gx = Math.sin(event.gamma * (Math.PI / 180));
-                    const gy = Math.sin(event.beta * (Math.PI / 180));
-
-                    // Cập nhật trọng lực dựa trên góc nghiêng
-                    if(gx && gy) {
-                        engine.gravity.x = gx * 1.5; // Nhân hệ số để ảnh chạy nhạy hơn
-                        engine.gravity.y = gy * 1.5;
-                    }
-                });
-            }
-
-            // Cho phép tương tác chạm và kéo ảnh bằng tay
-            const mouse = Mouse.create(container);
-            const mouseConstraint = MouseConstraint.create(engine, {
-                mouse: mouse,
-                constraint: { stiffness: 0.2, render: { visible: false } }
-            });
-            Composite.add(engine.world, mouseConstraint);
-
+            render();
             setInterval(updateTimer, 1000);
+        }
+
+        function render() {
+            const photos = document.querySelectorAll('.particle-photo');
+            const cosX = Math.cos(rotationX * Math.PI/180), sinX = Math.sin(rotationX * Math.PI/180);
+            const cosY = Math.cos(rotationY * Math.PI/180), sinY = Math.sin(rotationY * Math.PI/180);
+
+            photos.forEach(img => {
+                if(img.classList.contains('active')) return;
+                let x = parseFloat(img.dataset.x), y = parseFloat(img.dataset.y), z = parseFloat(img.dataset.z);
+                let tx = x * cosY - z * sinY, tz = x * sinY + z * cosY;
+                let finalY = y * cosX - tz * sinX, finalZ = y * sinX + tz * cosX;
+                
+                const scale = 800 / (800 + finalZ);
+                img.style.left = (tx * scale + window.innerWidth/2) + 'px';
+                img.style.top = (finalY * scale + window.innerHeight/2) + 'px';
+                img.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                img.style.zIndex = Math.round(finalZ);
+                img.style.opacity = (finalZ + sphereRadius) / (2 * sphereRadius) * 0.7 + 0.3;
+            });
         }
 
         function updateTimer() {
             const diff = new Date() - START_DATE;
-            const d = Math.floor(diff / 86400000);
+            document.getElementById('d-num').innerText = Math.floor(diff / 86400000);
             const h = String(Math.floor((diff / 3600000) % 24)).padStart(2,'0');
             const m = String(Math.floor((diff / 60000) % 60)).padStart(2,'0');
             const s = String(Math.floor((diff / 1000) % 60)).padStart(2,'0');
-            document.getElementById('d-num').innerText = d;
             document.getElementById('t-num').innerText = `${h}H : ${m}M : ${s}S`;
         }
     </script>
